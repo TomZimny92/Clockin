@@ -1,0 +1,35 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Clockin.Models
+{
+    public class TimeEntry
+    {
+        public DateTime ClockinTime { get; set; }
+        public DateTime? CheckoutTime { get; set; }
+
+        public TimeSpan Duration
+        {
+            get
+            {
+                if (CheckoutTime.HasValue)
+                {
+                    return CheckoutTime.Value - ClockinTime;
+                }
+                return TimeSpan.Zero; // Or handle as an ongoing session if needed elsewhere
+            }
+        }
+
+        public TimeEntry GetDefault()
+        { // can possibly use for null-safety
+            return new TimeEntry
+            {
+                ClockinTime = default,
+                CheckoutTime = default,
+            };
+        }
+    }
+}

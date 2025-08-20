@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Clockin.AddTabPage"
+             Title="AddTabPage">
+    <VerticalStackLayout
+        Padding="20"
+        Spacing="15"
+        VerticalOptions="Center"
+        HorizontalOptions="Center">
+        <Label Text="Enter Tab Name: " />
+        <Entry x:Name="TabName" />
+        <Button Text="Add" Clicked="OnAddTabClicked" />
+    </VerticalStackLayout>
+</ContentPage>
