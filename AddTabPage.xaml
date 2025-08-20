@@ -11,5 +11,6 @@
         <Label Text="Enter Tab Name: " />
         <Entry x:Name="TabName" />
         <Button Text="Add" Clicked="OnAddTabClicked" />
+        <Button Text="Close" Clicked="OnCloseTabClicked" />
     </VerticalStackLayout>
 </ContentPage>

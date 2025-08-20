@@ -64,7 +64,7 @@ namespace Clockin.ViewModels
 
         private IDispatcherTimer? _clockTimer;
 
-        public MainViewModel(Guid contextId)
+        public MainViewModel()
         {
             ClockinCommand = new Command(ExecuteClockin, CanExecuteClockin);
             CheckoutCommand = new Command(ExecuteCheckout, CanExecuteCheckout);
