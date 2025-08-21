@@ -23,7 +23,7 @@ namespace Clockin.Models
             }
         }
 
-        public TimeEntry GetDefault()
+        public static TimeEntry GetDefault()
         { // can possibly use for null-safety
             return new TimeEntry
             {

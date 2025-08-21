@@ -8,13 +8,16 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
+using Clockin.Services;
 
 namespace Clockin.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
+        private readonly IStartupDataService _startupDataService;
 
         // SecureStorage Keys
+        private const string ContextModelKey = "ContextModelKey";
         private const string IsCheckedInKey = "IsCheckedInKey";
         private const string TimeEntriesKey = "TimeEntriesKey";
         private const string TotalElapsedTimeKey = "TotalElapsedTimeKey";
@@ -64,8 +67,9 @@ namespace Clockin.ViewModels
 
         private IDispatcherTimer? _clockTimer;
 
-        public MainViewModel()
+        public MainViewModel(IStartupDataService ds)
         {
+            _startupDataService = ds; // use ds.GetLastTabSelectedAsync() to get the ID
             ClockinCommand = new Command(ExecuteClockin, CanExecuteClockin);
             CheckoutCommand = new Command(ExecuteCheckout, CanExecuteCheckout);
             ShowSummaryCommand = new Command(async () => await ExecuteShowResult());
@@ -91,7 +95,7 @@ namespace Clockin.ViewModels
                 }
                 else
                 {
-                    TimeEntries = new ObservableCollection<TimeEntry>();
+                    TimeEntries = [];
                 }
 
                 var totalElapsedTime = await SecureStorage.Default.GetAsync(TotalElapsedTimeKey);
