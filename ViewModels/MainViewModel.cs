@@ -12,9 +12,10 @@ using Clockin.Services;
 
 namespace Clockin.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public partial class MainViewModel : BaseViewModel
     {
         private readonly IStartupDataService _startupDataService;
+        
 
         // SecureStorage Keys
         private const string ContextModelKey = "ContextModelKey";
@@ -84,6 +85,7 @@ namespace Clockin.ViewModels
         {
             try
             {
+                var test = _startupDataService.GetLastTabSelectedAsync();               
                 var timeEntries = await SecureStorage.Default.GetAsync(TimeEntriesKey);
                 if (!string.IsNullOrEmpty(timeEntries))
                 {
