@@ -24,11 +24,7 @@ namespace Clockin
 
             builder.Services.AddSingleton<IStartupDataService, StartupDataService>();
             builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddTransient<MainViewModel>(sp =>
-            {
-                var ds = sp.GetRequiredService<IStartupDataService>();
-                return new MainViewModel(ds);
-            });
+            builder.Services.AddSingleton<MainViewModel>();
 
 
             return builder.Build();

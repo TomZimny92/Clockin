@@ -5,7 +5,6 @@
         public App()
         {
             InitializeComponent();
-            //SetMainPageAsync();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

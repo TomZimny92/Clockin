@@ -68,9 +68,9 @@ namespace Clockin.ViewModels
 
         private IDispatcherTimer? _clockTimer;
 
-        public MainViewModel(IStartupDataService ds)
+        public MainViewModel(IStartupDataService sds)
         {
-            _startupDataService = ds; // use ds.GetLastTabSelectedAsync() to get the ID
+            _startupDataService = sds; // use ds.GetLastTabSelectedAsync() to get the ID
             ClockinCommand = new Command(ExecuteClockin, CanExecuteClockin);
             CheckoutCommand = new Command(ExecuteCheckout, CanExecuteCheckout);
             ShowSummaryCommand = new Command(async () => await ExecuteShowResult());
