@@ -9,6 +9,7 @@ namespace Clockin.Services
     public interface IStartupDataService
     {
         Task<Guid> GetLastTabSelectedAsync();
+        Task<int> GetTabCountAsync();
     }
 
     public class StartupDataService : IStartupDataService
@@ -25,6 +26,20 @@ namespace Clockin.Services
             else
             {
                 return Guid.CreateVersion7();
+            }
+        }
+
+        public async Task<int> GetTabCountAsync()
+        {
+            const string NumberOfTabsKey = "NumberOfTabsKey";
+            string? rawTabCount = await SecureStorage.Default.GetAsync(NumberOfTabsKey);
+            if (!String.IsNullOrEmpty(rawTabCount) && int.TryParse(rawTabCount, out int count))
+            {
+                return count;
+            }
+            else
+            {
+                return 2; // default number of tabs. Can probably make this less hard-cody
             }
         }
     }

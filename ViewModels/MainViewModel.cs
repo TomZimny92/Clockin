@@ -85,7 +85,7 @@ namespace Clockin.ViewModels
         {
             try
             {
-                var test = _startupDataService.GetLastTabSelectedAsync();               
+                var test = _startupDataService.GetLastTabSelectedAsync();              
                 var timeEntries = await SecureStorage.Default.GetAsync(TimeEntriesKey);
                 if (!string.IsNullOrEmpty(timeEntries))
                 {
