@@ -18,16 +18,18 @@ public partial class AddTabPage : ContentPage
 
 	private async void OnAddTabClicked(object sender, EventArgs e)
 	{
-		TabContext cm = new();
-		cm.Name = TabName.Text;
-		cm.Id = Guid.CreateVersion7();
-
-		ShellContent newTab = new()
+        TabContext tabContext = new()
         {
-			Title = cm.Name,
+            Name = TabName.Text,
+            Id = Guid.CreateVersion7()
+        };
+
+        ShellContent newTab = new()
+        {
+			Title = tabContext.Name,
 			// Icon = cm.Icon
 			ContentTemplate = new DataTemplate(() => new MainViewModel(_startupDataService)),
-			Route = $"MainPage?id={cm.Id}"
+			Route = $"MainPage?id={tabContext.Id}"
 		};
 
 		var tabsLength = (Shell.Current as AppShell)?.MainTabBar.Items.Count;
@@ -37,7 +39,7 @@ public partial class AddTabPage : ContentPage
             (Shell.Current as AppShell)?.MainTabBar.Items.Insert(newIndex, newTab);
         }        
 		
-		await SecureStorage.SetAsync(ContextModelKey, JsonSerializer.Serialize(cm));
+		await SecureStorage.SetAsync(ContextModelKey, JsonSerializer.Serialize(tabContext));
 
 		// once added, go to MainPage with empty data
 	}
