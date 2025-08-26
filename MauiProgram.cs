@@ -1,5 +1,7 @@
 ﻿using Clockin.Services;
 using Clockin.ViewModels;
+using CommunityToolkit.Maui;
+using CommunityToolkit.Mvvm;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls;
 
@@ -12,6 +14,7 @@ namespace Clockin
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -22,7 +25,7 @@ namespace Clockin
     		builder.Logging.AddDebug();
 #endif
 
-            builder.Services.AddSingleton<IStartupDataService, StartupDataService>();
+            //builder.Services.AddSingleton<IStartupDataService, StartupDataService>();
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
 

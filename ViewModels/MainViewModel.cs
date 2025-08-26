@@ -1,4 +1,5 @@
 ﻿using Clockin.Models;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,21 +10,13 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using Clockin.Services;
+using System.Text.Json.Serialization;
 
 namespace Clockin.ViewModels
 {
     public partial class MainViewModel : BaseViewModel
     {
-        private readonly IStartupDataService _startupDataService;
-        
-
-        // SecureStorage Keys
-        private const string ContextModelKey = "ContextModelKey";
-        private const string IsCheckedInKey = "IsCheckedInKey";
-        private const string TimeEntriesKey = "TimeEntriesKey";
-        private const string TotalElapsedTimeKey = "TotalElapsedTimeKey";
-        // private const string HourlyRateKey = "HourlyRateKey";// dont need here?
-        //private const string CalculatedResultKey = "CalculatedResultKey";
+        private const string LastTabUsedKey = "LastTabUsedKey";
 
         private bool _isCheckedIn;
         public bool IsCheckedIn
@@ -34,7 +27,6 @@ namespace Clockin.ViewModels
                 if (SetProperty(ref _isCheckedIn, value))
                 {
                     UpdateCommandStates();
-
                 }
             }
         }
@@ -60,6 +52,13 @@ namespace Clockin.ViewModels
             set => SetProperty(ref _totalElapsedTime, value);
         }
 
+        private TabContext? _currentTab;
+        public TabContext? CurrentTab
+        {
+            get => _currentTab;
+            set => SetProperty(ref _currentTab, value);
+        }
+
         public ICommand ClockinCommand { get; }
         public ICommand CheckoutCommand { get; }
         public ICommand ShowSummaryCommand { get; }
@@ -68,14 +67,13 @@ namespace Clockin.ViewModels
 
         private IDispatcherTimer? _clockTimer;
 
-        public MainViewModel(IStartupDataService sds)
+        public MainViewModel()
         {
-            _startupDataService = sds; // use ds.GetLastTabSelectedAsync() to get the ID
-            ClockinCommand = new Command(ExecuteClockin, CanExecuteClockin);
-            CheckoutCommand = new Command(ExecuteCheckout, CanExecuteCheckout);
-            ShowSummaryCommand = new Command(async () => await ExecuteShowResult());
-            ResetCommand = new Command(ExecuteReset);
-            PreferencesCommand = new Command(async () => await ExecutePreferences());
+            ClockinCommand = new AsyncRelayCommand(ExecuteClockin, CanExecuteClockin);
+            CheckoutCommand = new AsyncRelayCommand(ExecuteCheckout, CanExecuteCheckout);
+            ShowSummaryCommand = new AsyncRelayCommand(ExecuteShowResult);
+            ResetCommand = new AsyncRelayCommand(ExecuteReset);
+            PreferencesCommand = new AsyncRelayCommand(ExecutePreferences);
 
             _ = InitializeData();
             SetupClock();
@@ -85,60 +83,37 @@ namespace Clockin.ViewModels
         {
             try
             {
-                var test = _startupDataService.GetLastTabSelectedAsync();              
-                var timeEntries = await SecureStorage.Default.GetAsync(TimeEntriesKey);
-                if (!string.IsNullOrEmpty(timeEntries))
+                // get last tab used
+                string? lastTabRaw = await SecureStorage.Default.GetAsync(LastTabUsedKey);
+                if (!string.IsNullOrEmpty(lastTabRaw))
                 {
-                    var formattedTimeEntries = FormatStorageData(timeEntries);
-                    if (formattedTimeEntries != null)
+                    string? currentTabContextRaw = await SecureStorage.Default.GetAsync(lastTabRaw);
+                    if (!string.IsNullOrEmpty(currentTabContextRaw))
                     {
-                        TimeEntries = formattedTimeEntries;
+                        CurrentTab = JsonSerializer.Deserialize<TabContext>(currentTabContextRaw);                        
+                    }
+                    else
+                    {
+                        CurrentTab = TabContext.CreateNewTabData();                        
                     }
                 }
                 else
                 {
-                    TimeEntries = [];
+                    CurrentTab = TabContext.CreateNewTabData();
                 }
 
-                var totalElapsedTime = await SecureStorage.Default.GetAsync(TotalElapsedTimeKey);
-                if (!string.IsNullOrEmpty(totalElapsedTime))
+                if (CurrentTab != null)
                 {
-                    TotalElapsedTime = totalElapsedTime;
-                }
-                else
-                {
-                    TotalElapsedTime = "00:00:00";
-                }
-
-                var isCheckedIn = await SecureStorage.Default.GetAsync(IsCheckedInKey);
-                if (bool.TryParse(isCheckedIn, out bool loadedIsCheckedIn))
-                {
-                    IsCheckedIn = loadedIsCheckedIn;
+                    IsCheckedIn = CurrentTab.IsCheckedIn;
+                    TimeEntries = CurrentTab.TimeEntries;
+                    CalculateElapsedTime();
                 }
                 else
                 {
                     IsCheckedIn = false;
+                    TimeEntries = [];
+                    TotalElapsedTime = "00:00:00";
                 }
-
-                //var hourlyRate = await SecureStorage.Default.GetAsync(HourlyRateKey);
-                //if (double.TryParse(hourlyRate, out double loadedRate))
-                //{
-                //    HourlyRate = loadedRate;
-                //}
-                //else
-                //{
-                //    HourlyRate = 0.0; // Default if not found or invalid
-                //}
-
-                //var calculatedResult = await SecureStorage.Default.GetAsync(CalculatedResultKey);
-                //if (!string.IsNullOrEmpty(calculatedResult))
-                //{
-                //    CalculatedResult = calculatedResult;
-                //}
-                //else
-                //{
-                //    CalculatedResult = "0";
-                //}
             }
             catch (Exception ex)
             {
@@ -147,29 +122,6 @@ namespace Clockin.ViewModels
             finally
             {
                 UpdateCommandStates();
-            }
-        }
-
-        private static ObservableCollection<TimeEntry> FormatStorageData(string storedData)
-        {
-            var cm = new ObservableCollection<TimeEntry>();
-            if (!string.IsNullOrEmpty(storedData))
-            {
-                cm = JsonSerializer.Deserialize<ObservableCollection<TimeEntry>>(storedData);
-                if (cm != null)
-                {
-                    return cm;
-                }
-                else
-                {
-                    Console.WriteLine("Warning: Deserialized TimeEntry is null. Returning new context.");
-                    return [];
-                }
-            }
-            else
-            {
-                Console.WriteLine("Warning: Stored data is empty or null. Returning new context.");
-                return cm;
             }
         }
 
@@ -193,15 +145,14 @@ namespace Clockin.ViewModels
             }
         }
 
-        private void ExecuteClockin()
+        private async Task ExecuteClockin()
         {
             IsCheckedIn = true;
             if (TimeEntries != null)
             {
                 TimeEntries.Add(new TimeEntry { ClockinTime = DateTime.Now, CheckoutTime = null });
                 UpdateCommandStates();
-                SecureStorage.Default.SetAsync(TimeEntriesKey, JsonSerializer.Serialize(TimeEntries));
-                SecureStorage.Default.SetAsync(IsCheckedInKey, IsCheckedIn.ToString());
+                await SaveStateAsync();
             }
             else
             {
@@ -215,7 +166,7 @@ namespace Clockin.ViewModels
             return !IsCheckedIn;
         }
 
-        private void ExecuteCheckout()
+        private async Task ExecuteCheckout()
         {
             IsCheckedIn = false;
             DateTime checkoutTime = DateTime.Now;
@@ -238,8 +189,7 @@ namespace Clockin.ViewModels
 
                 UpdateCommandStates();
                 CalculateElapsedTime(); // Update summary immediately after checkout
-                SecureStorage.Default.SetAsync(TimeEntriesKey, JsonSerializer.Serialize(TimeEntries));
-                SecureStorage.Default.SetAsync(IsCheckedInKey, IsCheckedIn.ToString());
+                await SaveStateAsync();
             }
             else
             {
@@ -270,7 +220,6 @@ namespace Clockin.ViewModels
                     }
                 }
                 TotalElapsedTime = $"{total:hh\\:mm\\:ss}";
-                SecureStorage.Default.SetAsync(TotalElapsedTimeKey, TotalElapsedTime);
             }
             else
             {
@@ -309,19 +258,15 @@ namespace Clockin.ViewModels
 
 
 
-        private void ExecuteReset()
+        private async Task ExecuteReset()
         {
             if (TimeEntries != null)
             {
                 TimeEntries.Clear();
                 IsCheckedIn = false;
                 TotalElapsedTime = "00:00:00";
-                //CalculatedResult = "0";
                 UpdateCommandStates();
-                SecureStorage.Default.SetAsync(TimeEntriesKey, JsonSerializer.Serialize(TimeEntries));
-                SecureStorage.Default.SetAsync(IsCheckedInKey, IsCheckedIn.ToString());
-                SecureStorage.Default.SetAsync(TotalElapsedTimeKey, TotalElapsedTime);
-                //SecureStorage.Default.SetAsync(CalculatedResultKey, CalculatedResult);
+                await SaveStateAsync();
                 App.Current?.Windows[0]?.Page?.DisplayAlert("Reset", "All time entries have been cleared.", "OK");
             }
             else
@@ -342,43 +287,39 @@ namespace Clockin.ViewModels
                 {
                     await Application.Current.Windows[0].Navigation.PushModalAsync(preferencesPage);
                 }
-                
-                //await Application.Current.MainPage.Navigation.PushModalAsync(preferencesPage); 
-                //var rate = await SecureStorage.Default.GetAsync(HourlyRateKey);
-                //if (double.TryParse(rate, out double loadedRate))
-                //{
-                //    HourlyRate = loadedRate;
-                //}
-                //else
-                //{
-                //    HourlyRate = 0.0;
-                //}
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading hourly rate: {ex.Message}");
-                //HourlyRate = 0.0;
             }
         }
 
-        //private async Task SaveDataAsync()
-        //{
-        //    try
-        //    {
-        //        await SecureStorage.Default.SetAsync(TimeEntriesKey, JsonSerializer.Serialize(TimeEntries));
-        //        await SecureStorage.Default.SetAsync(IsCheckedInKey, IsCheckedIn.ToString());
-        //        await SecureStorage.Default.SetAsync(TotalElapsedTimeKey, TotalElapsedTime);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e.ToString());
-        //    }
-        //}
+        private async Task SaveStateAsync()
+        {
+            try
+            {
+                if (CurrentTab  != null)
+                {
+                    CurrentTab.IsCheckedIn = IsCheckedIn;
+                    CurrentTab.TimeEntries = TimeEntries;
+                    await SecureStorage.Default.SetAsync(LastTabUsedKey, CurrentTab.Id.ToString());
+                    await SecureStorage.Default.SetAsync(CurrentTab.Id.ToString(), JsonSerializer.Serialize(CurrentTab.TimeEntries));
+                }
+                else
+                {
+                    Console.WriteLine("somehow CurrentTab is null");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
 
         private void UpdateCommandStates()
         {
-            ((Command)ClockinCommand).ChangeCanExecute();
-            ((Command)CheckoutCommand).ChangeCanExecute();
+            ((AsyncRelayCommand)ClockinCommand).NotifyCanExecuteChanged();
+            ((AsyncRelayCommand)CheckoutCommand).NotifyCanExecuteChanged();
         }
     }
 }

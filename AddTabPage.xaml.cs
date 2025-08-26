@@ -7,8 +7,6 @@ namespace Clockin;
 
 public partial class AddTabPage : ContentPage
 {
-	private readonly IStartupDataService _startupDataService;
-
 	private const string ContextModelKey = "ContextModelKey";
 
 	public AddTabPage()
@@ -28,7 +26,7 @@ public partial class AddTabPage : ContentPage
         {
 			Title = tabContext.Name,
 			// Icon = cm.Icon
-			ContentTemplate = new DataTemplate(() => new MainViewModel(_startupDataService)),
+			ContentTemplate = new DataTemplate(() => new MainViewModel()),
 			Route = $"MainPage?id={tabContext.Id}"
 		};
 
