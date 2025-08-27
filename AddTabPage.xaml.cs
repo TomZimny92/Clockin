@@ -8,8 +8,9 @@ namespace Clockin;
 public partial class AddTabPage : ContentPage
 {
 	private const string ContextModelKey = "ContextModelKey";
+    private const string LastTabUsedKey = "LastTabUsedKey";
 
-	public AddTabPage()
+    public AddTabPage()
 	{
 		InitializeComponent();
 	}
@@ -24,10 +25,11 @@ public partial class AddTabPage : ContentPage
 
         ShellContent newTab = new()
         {
+			
 			Title = tabContext.Name,
 			// Icon = cm.Icon
 			ContentTemplate = new DataTemplate(() => new MainViewModel()),
-			Route = $"MainPage?id={tabContext.Id}"
+			Route = $"TabBar/?id={tabContext.Id}"
 		};
 
 		var tabsLength = (Shell.Current as AppShell)?.MainTabBar.Items.Count;
@@ -35,10 +37,11 @@ public partial class AddTabPage : ContentPage
 		{
 			int newIndex = (int)tabsLength - 1;
             (Shell.Current as AppShell)?.MainTabBar.Items.Insert(newIndex, newTab);
-        }        
-		
-		await SecureStorage.SetAsync(ContextModelKey, JsonSerializer.Serialize(tabContext));
+        }
 
+		//await SecureStorage.SetAsync(ContextModelKey, JsonSerializer.Serialize(tabContext));
+		await SecureStorage.Default.SetAsync(tabContext.Id.ToString(), JsonSerializer.Serialize(tabContext));
+		await SecureStorage.Default.SetAsync(LastTabUsedKey, tabContext.Id.ToString());
 		// once added, go to MainPage with empty data
 	}
 
