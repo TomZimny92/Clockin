@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clockin", "Clockin.csproj", "{160DDB36-6372-499E-89A6-F3C84D734646}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClockinSandbox", "..\ClockinSandbox\ClockinSandbox.csproj", "{60E8C270-91C7-471A-A099-C5F337A98F46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoneword", "..\Phoneword\Phoneword.csproj", "{50ECA9F8-7EE8-454C-AE4D-1BE8364EE50D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{160DDB36-6372-499E-89A6-F3C84D734646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{160DDB36-6372-499E-89A6-F3C84D734646}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{160DDB36-6372-499E-89A6-F3C84D734646}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60E8C270-91C7-471A-A099-C5F337A98F46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60E8C270-91C7-471A-A099-C5F337A98F46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60E8C270-91C7-471A-A099-C5F337A98F46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60E8C270-91C7-471A-A099-C5F337A98F46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50ECA9F8-7EE8-454C-AE4D-1BE8364EE50D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50ECA9F8-7EE8-454C-AE4D-1BE8364EE50D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50ECA9F8-7EE8-454C-AE4D-1BE8364EE50D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50ECA9F8-7EE8-454C-AE4D-1BE8364EE50D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
