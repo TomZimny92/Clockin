@@ -14,9 +14,20 @@ using System.Text.Json.Serialization;
 
 namespace Clockin.ViewModels
 {
+    [QueryProperty(nameof(TabID), "tabId")]
     public partial class MainViewModel : BaseViewModel
     {
         private const string LastTabUsedKey = "LastTabUsedKey";
+
+        private string? _tabId;
+        public string? TabID
+        {
+            get => _tabId;
+            set
+            {
+                _tabId = value;
+            }
+        }
 
         private bool _isCheckedIn;
         public bool IsCheckedIn
@@ -84,6 +95,8 @@ namespace Clockin.ViewModels
             try
             {
                 // get last tab used
+                // MOVE THIS TO ONSTARTUP.
+                // WE NEED THIS TO BE CLEAN FOR CLICKING TABS AND USING THE QUERY PARAM
                 string? lastTabRaw = await SecureStorage.Default.GetAsync(LastTabUsedKey);
                 if (!string.IsNullOrEmpty(lastTabRaw))
                 {
