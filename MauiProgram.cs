@@ -25,7 +25,7 @@ namespace Clockin
     		builder.Logging.AddDebug();
 #endif
 
-            //builder.Services.AddSingleton<IStartupDataService, StartupDataService>();
+            builder.Services.AddSingleton<IStartupDataService, StartupDataService>();
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
 

@@ -7,7 +7,7 @@
     Title="Clockin">
 
     <TabBar x:Name="MainTabBar" Route="tabs" x:FieldModifier="public">
-        <ShellContent Title="First" ContentTemplate="{DataTemplate local:MainPage}" />
+        <!--<ShellContent Title="First" ContentTemplate="{DataTemplate local:MainPage}" />-->
         <ShellContent Title="Add Record" ContentTemplate="{DataTemplate local:AddTabPage}" />
     </TabBar>
 
