@@ -1,6 +1,4 @@
 ﻿using Clockin.ViewModels;
-using System.Collections.ObjectModel;
-using System.Text.Json;
 
 namespace Clockin
 {

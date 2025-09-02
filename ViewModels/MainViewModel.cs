@@ -1,16 +1,8 @@
 ﻿using Clockin.Models;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Extensions.Logging;
-using Clockin.Services;
-using System.Text.Json.Serialization;
 
 namespace Clockin.ViewModels
 {

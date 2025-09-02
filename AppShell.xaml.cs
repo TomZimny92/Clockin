@@ -14,7 +14,7 @@ namespace Clockin
 
         public AppShell(IStartupDataService sds)
         {
-            InitializeComponent();
+            InitializeComponent();            
 
             Routing.RegisterRoute("mainpage", typeof(MainPage));
             Routing.RegisterRoute("addtabpage", typeof(AddTabPage));
@@ -23,9 +23,16 @@ namespace Clockin
             Routing.RegisterRoute("mainviewmodel", typeof(MainViewModel));
 
             _startupDataService = sds;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            
             PopulateTabBar();
             InitializeData();
         }
+
 
         private async void PopulateTabBar()
         {
@@ -44,19 +51,26 @@ namespace Clockin
                         if (rawTabData != null)
                         {
                             var tabData = JsonSerializer.Deserialize<TabContext>(rawTabData);
+                            //Tab tab = new Tab
+                            //{
+                            //    Title = tabData?.Name,
+                            //    Icon = tabData?.Icon,
+                            //};
                             ShellContent newTab = new()
                             {
                                 Title = tabData?.Name,
-
+                                Icon = tabData?.Icon,
+                                Route = $"mainviewmodel?tabId={tabData?.Id}"
                             };
+                            this.MainTabBar.Items.Add(newTab);
                         }
                     }
-                }                    
-                
+                }                
             }
             else
             {
                 // uhhh, route to AddTabPage?
+                await Current.GoToAsync("addtabpage");
             }
         }
 
