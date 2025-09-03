@@ -86,26 +86,32 @@ namespace Clockin.ViewModels
         {
             try
             {
-                // get last tab used
-                // MOVE THIS TO ONSTARTUP.
-                // WE NEED THIS TO BE CLEAN FOR CLICKING TABS AND USING THE QUERY PARAM
-                string? lastTabRaw = await SecureStorage.Default.GetAsync(LastTabUsedKey);
-                if (!string.IsNullOrEmpty(lastTabRaw))
+                if (TabID != null)
                 {
-                    string? currentTabContextRaw = await SecureStorage.Default.GetAsync(lastTabRaw);
-                    if (!string.IsNullOrEmpty(currentTabContextRaw))
-                    {
-                        CurrentTab = JsonSerializer.Deserialize<TabContext>(currentTabContextRaw);                        
-                    }
-                    else
-                    {
-                        CurrentTab = TabContext.CreateNewTabData();                        
+                    var currentTab = await SecureStorage.Default.GetAsync(TabID);
+                    if (!string.IsNullOrEmpty(currentTab)) 
+                    { 
+                        CurrentTab = JsonSerializer.Deserialize<TabContext>(currentTab);
                     }
                 }
-                else
-                {
-                    CurrentTab = TabContext.CreateNewTabData();
-                }
+
+                //string? lastTabRaw = await SecureStorage.Default.GetAsync(TabID?.ToString());
+                //if (!string.IsNullOrEmpty(lastTabRaw))
+                //{
+                //    string? currentTabContextRaw = await SecureStorage.Default.GetAsync(lastTabRaw);
+                //    if (!string.IsNullOrEmpty(currentTabContextRaw))
+                //    {
+                //        CurrentTab = JsonSerializer.Deserialize<TabContext>(currentTabContextRaw);                        
+                //    }
+                //    else
+                //    {
+                //        CurrentTab = TabContext.CreateNewTabData();                        
+                //    }
+                //}
+                //else
+                //{
+                //    CurrentTab = TabContext.CreateNewTabData();
+                //}
 
                 if (CurrentTab != null)
                 {
